@@ -1,9 +1,12 @@
 # DX9 Time and Weather Based Bloom and Sunshafts
 
-**Official Addon Link**: https://www.moddb.com/mods/stalker-anomaly/addons/dx9-time-and-weather-based-bloom-and-sunshafts
+**Official Addon Link**: https://www.moddb.com/mods/stalker-anomaly/addons/dx9-time-and-weather-based-bloom-and-sunshafts.
+
 **MCM is supported**
 
-<a align="center" href="https://www.moddb.com/mods/stalker-anomaly/addons/dx9-time-and-weather-based-bloom-and-sunshafts" title="Download DX9 Time and Weather Based Bloom and Sunshafts (UPDATE 11) - Mod DB" target="_blank"><img src="https://button.moddb.com/download/medium/236768.png" alt="DX9 Time and Weather Based Bloom and Sunshafts (UPDATE 11)" /></a>
+<p align="center">
+	<a href="https://www.moddb.com/mods/stalker-anomaly/addons/dx9-time-and-weather-based-bloom-and-sunshafts" title="Download DX9 Time and Weather Based Bloom and Sunshafts (UPDATE 11) - Mod DB" target="_blank"><img src="https://button.moddb.com/download/medium/236768.png" alt="DX9 Time and Weather Based Bloom and Sunshafts (UPDATE 11)" /></a>
+</p>
 
 <br>
 
