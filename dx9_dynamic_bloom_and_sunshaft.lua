@@ -6,7 +6,7 @@ local RemoveTimeEvent = demonized_time_events.RemoveTimeEvent
 
 -- change the value to "true" if you are using the debug mode especially the weather
 -- editor
-local DEBUG_MODE = false
+local DEBUG_MODE
 
 -- safety variables
 local LS_BLOOM_FAST_OFF = "r2_ls_bloom_fast off"
@@ -74,7 +74,7 @@ end
 
 local FIRST_LEVEL_WEATHER = nil
 function actor_on_first_update()
-	if is_blacklisted_weather() or DEBUG_MODE == true then
+	if is_blacklisted_weather() or DEBUG_MODE then
 		FIRST_LEVEL_WEATHER = nil
 	else
 		FIRST_LEVEL_WEATHER = get_current_weather_file()
