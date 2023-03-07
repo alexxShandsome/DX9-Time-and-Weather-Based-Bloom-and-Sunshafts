@@ -224,7 +224,9 @@ function is_slightly_bright_weather()
 		w_foggy1 = true,
 		w_foggy2 = true,
 		w_rain1 = true,
-		w_partly2 = true
+		w_partly2 = true,
+		w_cloudy1 = true,
+		w_storm2 = true,
 	}
 
 	if weather_set[weather] then
