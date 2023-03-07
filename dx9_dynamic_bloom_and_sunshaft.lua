@@ -205,9 +205,14 @@ end
 
 function is_bright_weather()
 	local weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
+	local weather_set = {
+		w_clear1 = true,
+		w_clear2 = true,
+		w_partly1 = true,
+		["[default]"] = true
+	}
 
-	if weather == "w_clear1" or weather == "w_clear2" or
-		weather == "w_partly1" or weather == "[default]" then
+	if weather_set[weather] then
 		return true
 	end
 	return false
@@ -215,9 +220,14 @@ end
 
 function is_slightly_bright_weather()
 	local weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
+	local weather_set = {
+		w_foggy1 = true,
+		w_foggy2 = true,
+		w_rain1 = true,
+		w_partly2 = true
+	}
 
-	if weather == "w_foggy1" or weather == "w_foggy2" or
-		weather == "w_rain1" or weather == "w_partly2" then
+	if weather_set[weather] then
 		return true
 	end
 	return false
@@ -225,8 +235,12 @@ end
 
 function is_cloudy_weather()
 	local weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
+	local weather_set = {
+		w_cloudy1 = true,
+		w_cloudy2_dark = true
+	}
 
-	if weather == "w_cloudy1" or weather == "w_cloudy2_dark" then
+	if weather_set[weather] then
 		return true
 	end
 	return false
@@ -234,8 +248,14 @@ end
 
 function is_blacklisted_weather()
 	local weather = get_current_weather_file()
-	if weather == "fx_blowout_day" or weather == "fx_blowout_night" or
-		weather == "fx_psi_storm_day" or weather == "fx_psi_storm_night" then
+	local weather_set = {
+		fx_blowout_day = true,
+		fx_blowout_night = true,
+		fx_psi_storm_day = true,
+		fx_psi_storm_night = true,
+	}
+
+	if weather_set[weather] then
 		return true
 	end
 	return false
