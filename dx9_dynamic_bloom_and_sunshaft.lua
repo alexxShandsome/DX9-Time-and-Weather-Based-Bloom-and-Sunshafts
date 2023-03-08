@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 -- latest changes:
 -- Added a DEBUG_MODE option
 
@@ -24,10 +25,40 @@ local TURN_ON_LS_BLOOM_THRESHOLD = "r2_ls_bloom_threshold 0"
 -- r2_ls_bloom_kernel_scale scale is [0.05 - 2]
 -- weather kernel scale presets should not be less than MIN_LS_BLOOM_KERNEL_SCALE
 local MIN_LS_BLOOM_KERNEL_SCALE = 0.4								-- 0.4 by default
+
 local SLIGHTLY_BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE = 0.7	-- 0.7 by default
+local SLIGHTLY_BRIGHT_WEATHER = {
+	w_foggy1 = true,
+	w_foggy2 = true,
+	w_partly1 = true,
+	w_rain3 = true
+}
+
 local BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE = 0.8				-- 0.8 by default
-local CLOUDY_WEATHER_LS_BLOOM_KERNEL_SCALE = 0.65				-- 0.65 by default
-local BLOWOUT_LS_BLOOM_KERNEL_SCALE = 0.7							-- 0.7 by default
+local BRIGHT_WEATHER = {
+	["[default]"] = true,
+	w_clear1 = true,
+	w_clear2 = true,
+	w_partly2 = true,
+}
+
+local DARK_WEATHER_LS_BLOOM_KERNEL_SCALE = 0.65				-- 0.65 by default
+local DARK_WEATHER = {
+	w_rain1 = true,
+	w_rain2 = true,
+	w_cloudy1 = true,
+	w_cloudy2_dark = true,
+	w_storm1 = true,
+	w_storm2 = true,
+}
+
+local FX_WEATHER_LS_BLOOM_KERNEL_SCALE = 0.7							-- 0.7 by default
+local FX_WEATHER = {
+	fx_blowout_day = true,
+	fx_blowout_night = true,
+	fx_psi_storm_day = true,
+	fx_psi_storm_night = true,
+}
 
 --- time stuff ---
 local FRACTIONAL_TIME = 0
@@ -41,11 +72,11 @@ local PEAK_TIME_HOUR = 12
 local MAX_EVENING_TIME_HOUR = 23
 
 -- time when the bloom will start for cloudy weather
-local CLOUDY_BLOOM_TIME_START = 15
+-- local CLOUDY_BLOOM_TIME_START = 15
 -- time when the bloom will peak for cloudy weather (kinda perfect for sunset)
-local CLOUDY_BLOOM_TIME_PEAK = 19
+-- local CLOUDY_BLOOM_TIME_PEAK = 19
 -- time when the bloom will end for cloudy weather
-local CLOUDY_BLOOM_TIME_END = 23
+-- local CLOUDY_BLOOM_TIME_END = 23
 --- time stuff ---
 
 function on_game_start()
@@ -65,16 +96,15 @@ function load_settings()
 		MIN_LS_BLOOM_KERNEL_SCALE = ui_mcm.get("dynamic_bloom_and_sunshaft/MIN_BLOOM")
 		BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE = ui_mcm.get("dynamic_bloom_and_sunshaft/BRIGHT_WEATHER_BLOOM")
 		SLIGHTLY_BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE = ui_mcm.get("dynamic_bloom_and_sunshaft/SLIGHTLY_BRIGHT_WEATHER_BLOOM")
-		CLOUDY_WEATHER_LS_BLOOM_KERNEL_SCALE = ui_mcm.get("dynamic_bloom_and_sunshaft/CLOUDY_WEATHER_BLOOM")
-		BLOWOUT_LS_BLOOM_KERNEL_SCALE = ui_mcm.get("dynamic_bloom_and_sunshaft/PSI_BLOWOUT_BLOOM")
-		 -- = ui_mcm.get("dynamic_bloom_and_sunshaft/")
+		DARK_WEATHER_LS_BLOOM_KERNEL_SCALE = ui_mcm.get("dynamic_bloom_and_sunshaft/DARK_WEATHER_BLOOM")
+		FX_WEATHER_LS_BLOOM_KERNEL_SCALE = ui_mcm.get("dynamic_bloom_and_sunshaft/FX_WEATHER_BLOOM")
 		DEBUG_MODE = ui_mcm.get("dynamic_bloom_and_sunshaft/DEBUG_MODE")
 	end
 end
 
 local FIRST_LEVEL_WEATHER = nil
 function actor_on_first_update()
-	if is_blacklisted_weather() or DEBUG_MODE then
+	if is_fx_weather() or DEBUG_MODE then
 		FIRST_LEVEL_WEATHER = nil
 	else
 		FIRST_LEVEL_WEATHER = get_current_weather_file()
@@ -91,10 +121,10 @@ function actor_on_update()
 	get_console():execute("r2_ls_bloom_kernel_scale " .. SLIGHTLY_BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE)
 
 	-- Emission and Psi Storm preset
-	if is_blacklisted_weather() then
+	if is_fx_weather() then
 		get_console():execute(SUNSHAFTS_OFF)
 		get_console():execute(TURN_ON_LS_BLOOM_THRESHOLD)
-		get_console():execute("r2_ls_bloom_kernel_scale " .. BLOWOUT_LS_BLOOM_KERNEL_SCALE)
+		get_console():execute("r2_ls_bloom_kernel_scale " .. FX_WEATHER_LS_BLOOM_KERNEL_SCALE)
 	end
 
 	FRACTIONAL_TIME = get_fractional_time()
@@ -104,35 +134,28 @@ function actor_on_update()
 		generate_sunshafts()
 	end
 
-	-- bloom section
+	-- generate bloom within MIN_MORNING_TIME_HOUR and MAX_EVENING_TIME_HOUR
 	if FRACTIONAL_TIME >= MIN_MORNING_TIME_HOUR and
 		FRACTIONAL_TIME <= MAX_EVENING_TIME_HOUR then
 		generate_bloom()
 	end
-	-- bloom section
 end
 
 function generate_bloom()
-	if is_blacklisted_weather() then
+	if is_fx_weather() then
 		return
 	end
+
+	local current_weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
 
 	-- get bloom multiplier depending on the time
 	-- local bloom_multiplier = get_bloom_multiplier()
 	local bloom_threshold = TURN_OFF_LS_BLOOM_THRESHOLD
 	local bloom_kernel_scale = SLIGHTLY_BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE
 
-	if is_bright_weather() then
-		bloom_threshold = TURN_ON_LS_BLOOM_THRESHOLD
-	end
-
-	if is_slightly_bright_weather() then
-		bloom_threshold = TURN_ON_LS_BLOOM_THRESHOLD
-	end
-
-	if is_cloudy_weather() and
-		FRACTIONAL_TIME >= CLOUDY_BLOOM_TIME_START and
-		FRACTIONAL_TIME <= CLOUDY_BLOOM_TIME_END then
+	-- to exclude underground levels
+	if BRIGHT_WEATHER[current_weather] or SLIGHTLY_BRIGHT_WEATHER[current_weather] or
+		DARK_WEATHER[current_weather] then
 		bloom_threshold = TURN_ON_LS_BLOOM_THRESHOLD
 	end
 
@@ -144,42 +167,35 @@ end
 
 function get_bloom_kernel_scale()
 	local timeset_normalize = 0
-
-	-- generate cloudy weather bloom kernel scale
-	if is_cloudy_weather() then
-		if FRACTIONAL_TIME >= CLOUDY_BLOOM_TIME_START and
-			FRACTIONAL_TIME < CLOUDY_BLOOM_TIME_PEAK then
-			timeset_normalize = normalize(FRACTIONAL_TIME, CLOUDY_BLOOM_TIME_START, CLOUDY_BLOOM_TIME_PEAK)
-			return denormalize(timeset_normalize, MIN_LS_BLOOM_KERNEL_SCALE, CLOUDY_WEATHER_LS_BLOOM_KERNEL_SCALE)
-		end
-		if FRACTIONAL_TIME >= CLOUDY_BLOOM_TIME_PEAK and
-			FRACTIONAL_TIME <= CLOUDY_BLOOM_TIME_END then
-			timeset_normalize = normalize(FRACTIONAL_TIME, CLOUDY_BLOOM_TIME_PEAK, CLOUDY_BLOOM_TIME_END)
-			return denormalize(timeset_normalize, CLOUDY_WEATHER_LS_BLOOM_KERNEL_SCALE, MIN_LS_BLOOM_KERNEL_SCALE)
-		end
-	end
+	local current_weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
 
 	-- generate morning bloom kernel scale
 	if FRACTIONAL_TIME >= MIN_MORNING_TIME_HOUR and
 		FRACTIONAL_TIME <= PEAK_TIME_HOUR then
 		timeset_normalize = normalize(FRACTIONAL_TIME, MIN_MORNING_TIME_HOUR, PEAK_TIME_HOUR)
-		if is_bright_weather() then
+		if BRIGHT_WEATHER[current_weather] then
 			return denormalize(timeset_normalize, MIN_LS_BLOOM_KERNEL_SCALE, BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE)
 		end
-		if is_slightly_bright_weather() then
+		if SLIGHTLY_BRIGHT_WEATHER[current_weather] then
 			return denormalize(timeset_normalize, MIN_LS_BLOOM_KERNEL_SCALE, SLIGHTLY_BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE)
+		end
+		if DARK_WEATHER[current_weather] then
+			return denormalize(timeset_normalize, MIN_LS_BLOOM_KERNEL_SCALE, DARK_WEATHER_LS_BLOOM_KERNEL_SCALE)
 		end
 	end
 
-	-- generate evening bloom kernel scale
+	-- generate afternoon bloom kernel scale
 	if FRACTIONAL_TIME > PEAK_TIME_HOUR and
 		FRACTIONAL_TIME <= MAX_EVENING_TIME_HOUR then
 		timeset_normalize = normalize(FRACTIONAL_TIME, PEAK_TIME_HOUR, MAX_EVENING_TIME_HOUR)
-		if is_bright_weather() then
+		if BRIGHT_WEATHER[current_weather] then
 			return denormalize(timeset_normalize, BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE, MIN_LS_BLOOM_KERNEL_SCALE)
 		end
-		if is_slightly_bright_weather() then
+		if SLIGHTLY_BRIGHT_WEATHER[current_weather] then
 			return denormalize(timeset_normalize, SLIGHTLY_BRIGHT_WEATHER_LS_BLOOM_KERNEL_SCALE, MIN_LS_BLOOM_KERNEL_SCALE)
+		end
+		if DARK_WEATHER[current_weather] then
+			return denormalize(timeset_normalize, DARK_WEATHER_LS_BLOOM_KERNEL_SCALE, MIN_LS_BLOOM_KERNEL_SCALE)
 		end
 	end
 
@@ -188,85 +204,24 @@ function get_bloom_kernel_scale()
 end
 
 function generate_sunshafts()
-	if is_blacklisted_weather() then
+	if is_fx_weather() then
 		return
 	end
 
-	if is_bright_weather() or is_slightly_bright_weather() then
-		get_console():execute(SUNSHAFTS_SCREEN_SPACE)
-	end
+	local current_weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
 
-	-- sunrays in the afternoon during cloudy days
-	if FRACTIONAL_TIME >= 17 and FRACTIONAL_TIME < MAX_EVENING_TIME_HOUR and
-		is_cloudy_weather() then
+	if BRIGHT_WEATHER[current_weather] or SLIGHTLY_BRIGHT_WEATHER[current_weather] then
 		get_console():execute(SUNSHAFTS_SCREEN_SPACE)
 	end
 end
 
-function is_bright_weather()
-	local weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
-	local weather_set = {
-		w_clear1 = true,
-		w_clear2 = true,
-		w_partly1 = true,
-		["[default]"] = true
-	}
-
-	if weather_set[weather] then
-		return true
-	end
-	return false
-end
-
-function is_slightly_bright_weather()
-	local weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
-	local weather_set = {
-		w_foggy1 = true,
-		w_foggy2 = true,
-		w_rain1 = true,
-		w_partly2 = true,
-		w_cloudy1 = true,
-		w_storm2 = true,
-	}
-
-	if weather_set[weather] then
-		return true
-	end
-	return false
-end
-
-function is_cloudy_weather()
-	local weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
-	local weather_set = {
-		w_cloudy1 = true,
-		w_cloudy2_dark = true
-	}
-
-	if weather_set[weather] then
-		return true
-	end
-	return false
-end
-
-function is_blacklisted_weather()
+function is_fx_weather()
 	local weather = get_current_weather_file()
-	local weather_set = {
-		fx_blowout_day = true,
-		fx_blowout_night = true,
-		fx_psi_storm_day = true,
-		fx_psi_storm_night = true,
-	}
 
-	if weather_set[weather] then
+	if FX_WEATHER[weather] then
 		return true
 	end
 	return false
-end
-
--- I don't know how it's not working sometimes
-function actor_on_sleep()
-	-- reset_first_weather()
-	CreateTimeEvent("reset_bloom_first_weather", "reset_bloom_first_weather", 3, actor_on_first_update)
 end
 
 -- converts time to decimal equivalent
@@ -287,6 +242,12 @@ function denormalize(val, min, max)
 	return val * (max - min) + min
 end
 
+-- I don't know how it's not working sometimes
+function actor_on_sleep()
+	-- reset_first_weather()
+	CreateTimeEvent("reset_bloom_first_weather", "reset_bloom_first_weather", 3, actor_on_first_update)
+end
+
 -- for debugging purposes press 9
 function on_key_release(key)
 	if key == DIK_keys["DIK_9"] then
@@ -296,22 +257,30 @@ function on_key_release(key)
 		utils_data.debug_write("FRACTIONAL_TIME " .. FRACTIONAL_TIME)
 		utils_data.debug_write("Bloom Kernel Scale " .. get_bloom_kernel_scale())
 
-		if is_bright_weather() then
-			utils_data.debug_write("is_bright_weather() is TRUE")
+		local weather = FIRST_LEVEL_WEATHER or get_current_weather_file()
+
+		if BRIGHT_WEATHER[weather] then
+			utils_data.debug_write("BRIGHT_WEATHER is TRUE")
 		else
-			utils_data.debug_write("is_bright_weather() is FALSE")
+			utils_data.debug_write("BRIGHT_WEATHER is FALSE")
 		end
 
-		if is_slightly_bright_weather() then
-			utils_data.debug_write("is_slightly_bright_weather() is TRUE")
+		if SLIGHTLY_BRIGHT_WEATHER[weather] then
+			utils_data.debug_write("SLIGHTLY_BRIGHT_WEATHER is TRUE")
 		else
-			utils_data.debug_write("is_slightly_bright_weather() is FALSE")
+			utils_data.debug_write("SLIGHTLY_BRIGHT_WEATHER is FALSE")
 		end
 
-		if is_blacklisted_weather() then
-			utils_data.debug_write("is_blacklisted_weather() is TRUE")
+		if DARK_WEATHER[weather] then
+			utils_data.debug_write("DARK_WEATHER is TRUE")
 		else
-			utils_data.debug_write("is_blacklisted_weather() is FALSE")
+			utils_data.debug_write("DARK_WEATHER is TRUE")
+		end
+
+		if is_fx_weather() then
+			utils_data.debug_write("is_fx_weather() is TRUE")
+		else
+			utils_data.debug_write("is_fx_weather() is FALSE")
 		end
 	end
 end

@@ -30,7 +30,7 @@ function on_mcm_load()
 				max = 2,
 				step = 0.01
 			},
-			{id = "CLOUDY_WEATHER_BLOOM",
+			{id = "DARK_WEATHER_BLOOM",
 				type = "track",
 				val = 2,
 				def = 0.65,
@@ -38,7 +38,7 @@ function on_mcm_load()
 				max = 2,
 				step = 0.01
 			},
-			{id = "PSI_BLOWOUT_BLOOM",
+			{id = "FX_WEATHER_BLOOM",
 				type = "track",
 				val = 2,
 				def = 0.7,
