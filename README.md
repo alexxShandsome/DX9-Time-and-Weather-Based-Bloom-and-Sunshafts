@@ -1,4 +1,5 @@
 <h1 align="center">DX9 Time and Weather Based Bloom and Sunshafts</h1>
+<h3 align="center">For Michikos Weather Revamp Revised</h3>
 
 <p align="center">
 	<a href="https://www.moddb.com/mods/stalker-anomaly/addons/dx9-time-and-weather-based-bloom-and-sunshafts" title="Download DX9 Time and Weather Based Bloom and Sunshafts (UPDATE 11) - Mod DB" target="_blank">
