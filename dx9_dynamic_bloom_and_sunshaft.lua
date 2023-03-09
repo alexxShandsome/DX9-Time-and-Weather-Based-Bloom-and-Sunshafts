@@ -71,14 +71,6 @@ local PEAK_TIME_HOUR = 12
 -- time when the bloom will stop to generate
 local MAX_EVENING_TIME_HOUR = 23
 
--- time when the bloom will start for cloudy weather
--- local CLOUDY_BLOOM_TIME_START = 15
--- time when the bloom will peak for cloudy weather (kinda perfect for sunset)
--- local CLOUDY_BLOOM_TIME_PEAK = 19
--- time when the bloom will end for cloudy weather
--- local CLOUDY_BLOOM_TIME_END = 23
---- time stuff ---
-
 function on_game_start()
 	-- MCM stuff
 	RegisterScriptCallback("on_option_change", load_settings)
