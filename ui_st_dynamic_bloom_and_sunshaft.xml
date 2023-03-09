@@ -5,7 +5,7 @@
 	</string>
 
 	<string id="ui_mcm_dynamic_bloom_and_sunshaft_title">
-		<text>DX9 Dynamic Bloom and Sunshaft</text>
+		<text>DX9 Dynamic Bloom and Sunshaft (Atmospherics Weather)</text>
 	</string>
 
 	<!-- Debug Mode -->
@@ -32,7 +32,7 @@
 			Affected Weathers:\n
 			* w_clear1\n
 			* w_clear2\n
-			* w_partly1\n
+			* w_partly2\n
 			* [default]\n
 		</text>
 	</string>
@@ -48,28 +48,32 @@
 			Affected Weathers:\n
 			* w_foggy1\n
 			* w_foggy2\n
-			* w_rain1\n
-			* w_partly2\n
+			* w_partly1\n
+			* w_rain3\n
 		</text>
 	</string>
 	<!-- Slightly Bright Weathers -->
 
 	<!-- Cloudy Weathers -->
-	<string id="ui_mcm_dynamic_bloom_and_sunshaft_CLOUDY_WEATHER_BLOOM">
-		<text>Max Cloudy Weather Bloom</text>
+	<string id="ui_mcm_dynamic_bloom_and_sunshaft_DARK_WEATHER_BLOOM">
+		<text>Max Dark Weather Bloom</text>
 	</string>
 
-	<string id="ui_mcm_dynamic_bloom_and_sunshaft_CLOUDY_WEATHER_BLOOM_desc">
+	<string id="ui_mcm_dynamic_bloom_and_sunshaft_DARK_WEATHER_BLOOM_desc">
 		<text>
 			Affected Weathers:\n
+			* w_rain1\n
+			* w_rain2\n
 			* w_cloudy1\n
 			* w_cloudy2_dark\n
+			* w_storm1\n
+			* w_storm2\n
 		</text>
 	</string>
 	<!-- Cloudy Weathers -->
 
 	<!-- Emission and Psi Storm -->
-	<string id="ui_mcm_dynamic_bloom_and_sunshaft_PSI_BLOWOUT_BLOOM">
+	<string id="ui_mcm_dynamic_bloom_and_sunshaft_FX_WEATHER_BLOOM">
 		<text>Emission and Psi Storm Bloom</text>
 	</string>
 	<!-- Emission and Psi Storm -->
