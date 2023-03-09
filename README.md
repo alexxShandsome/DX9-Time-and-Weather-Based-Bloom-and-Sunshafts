@@ -22,6 +22,6 @@ This addon is tested only in DirectX 9, never tried it myself in DirectX 10 or 1
 Different Versions:
 * [Original Anomaly Weather](https://github.com/alexxShandsome/DX9-Time-and-Weather-Based-Bloom-and-Sunshafts/tree/default-weather)
 * [Michikos Weather Revamp Revised](https://github.com/alexxShandsome/DX9-Time-and-Weather-Based-Bloom-and-Sunshafts/tree/michikos-weather)
-* [GAMMA Weather]()
+* [GAMMA Weather](https://github.com/alexxShandsome/DX9-Time-and-Weather-Based-Bloom-and-Sunshafts/tree/gamma-weather)
 * [Atmospherics Weather](https://github.com/alexxShandsome/DX9-Time-and-Weather-Based-Bloom-and-Sunshafts/tree/atmospherics-weather)
 
